@@ -108,7 +108,7 @@ const Visual =()=>{
                         <HorizontalGridLines />
                         <XAxis title="timeline"/>
                         <YAxis title={targetCurrency}/>
-                        <LineMarkSeries data={plotData} color="red"  stroke="teal" />
+                        <LineMarkSeries data={plotData} color="red"  stroke="teal"  animation="stiff"/>
                     </FlexibleXYPlot>
                 </div>
 
@@ -118,6 +118,7 @@ const Visual =()=>{
                     <h6><b>Customize Chart</b></h6>
                         <select className="browser-default  container" onChange={handleBaseChange}>
                             <option value="" disabled selected >Select Base Currency</option>
+                            <option value="USD" selected  >USD</option>
                             {countries&&countries.map(country=>{
                                 return  <option value={country}>{country}</option>
                             })}
