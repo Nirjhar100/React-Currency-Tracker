@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import { useQuery } from 'react-query'
+import axios from 'axios'
 
 
 const DefaultCard = ()=>{
@@ -9,22 +10,30 @@ const DefaultCard = ()=>{
     
     const [baseValue, setBaseValue] = useState(0);
     const [targetValue, setTargetValue] = useState(0);
+    const [data2, setData2] = useState()
     const countries=[
         "CAD", "HKD", "ISK", "PHP", "DKK", "HUF", "CZK", "AUD", "RON", "SEK", "IDR", "INR", "BRL", "RUB", "HRK", "JPY", "THB", "CHF", "SGD", "PLN", "BGN", "TRY", "CNY", "NOK", "NZD", "ZAR", "USD", "MXN", "ILS", "GBP", "KRW", "MYR"
       ]
+
     
-    const fetchExchangeRates = async () => {
+  {/*  const fetchExchangeRates = async () => {
         const res = await fetch(`https://api.exchangeratesapi.io/latest?base=${baseCurrency}`);
         return res.json();
     }
 
+
+
     const {data:data2, status:status2, refetch:refetch2} = useQuery('latest', fetchExchangeRates);
+    */}
 
     React.useEffect(() => {
-      refetch2()
-    }, [baseCurrency])
+      axios.get(`https://api.exchangeratesapi.io/latest?base=${baseCurrency}`)
+        .then(res=>{
+            setData2(res.data)
+        })
+    }, [baseCurrency,targetCurrency])
    // console.log(data&&data.rates)
-
+    console.log(data2)
     const handleBaseValueChange = (e)=>{
         setBaseValue(e.target.value)
         setTargetValue(data2&&data2.rates[targetCurrency]*e.target.value)
@@ -89,8 +98,10 @@ const DefaultCard = ()=>{
                     </select>
                     <input className="col s4" type="number" min="0" value={targetValue} onChange={handleTargetValueChange} style={{border:"1px solid grey", marginLeft:"10px", borderRadius:"10px"}}/>
                     </div>
+                    <div className="container">
+                    <p className="flow-text center"><b>{data2&&data2.rates[baseCurrency]} {baseCurrency} </b> equals to <b>{data2&&data2.rates[targetCurrency]} {targetCurrency} </b></p>
+                    </div>
                     
-                    <p className="flow-text"><b>{data2&&data2.rates[baseCurrency]} {baseCurrency} </b> equals to <b>{data2&&data2.rates[targetCurrency]} {targetCurrency} </b></p>
                 </div>
                 
             </div>

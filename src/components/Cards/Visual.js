@@ -3,6 +3,7 @@ import { useQuery } from 'react-query'
 import '../../../node_modules/react-vis/dist/style.css';
 import {XYPlot, makeWidthFlexible, LineMarkSeries, VerticalGridLines, HorizontalGridLines, XAxis,YAxis} from 'react-vis';
 import moment from 'moment'
+import axios from 'axios'
 
 const Visual =()=>{
     
@@ -13,7 +14,7 @@ const Visual =()=>{
     const [targetDate, setTargetDate] = useState(moment(new Date(new Date().getTime()-(7*24*60*60*1000))).format('YYYY-MM-DD'))
 
     const FlexibleXYPlot = makeWidthFlexible(XYPlot); 
-
+    //const [data, setData] = useState()
     var plotData = [{x:new Date(),y:0}];
 
 
@@ -23,13 +24,18 @@ const Visual =()=>{
       ]
     
     React.useEffect(() => {
+        {/*
+        axios.get(`https://api.exchangeratesapi.io/history?start_at=${targetDate||moment(new Date(new Date().getTime()-(7*24*60*60*1000))).format('YYYY-MM-DD')}&end_at=${baseDate}&symbols=${baseCurrency},${targetCurrency}&base=${baseCurrency}`)
+        .then(res=>{
+            setData(res.data)
+        })
+        */}
         refetch()
-       
       
-      }, [baseCurrency,targetCurrency,targetDate])
+      }, [baseCurrency,targetDate,targetCurrency])
 
     const fetchHistoricalRates = async () => {
-        const res = await fetch(`https://api.exchangeratesapi.io/history?start_at=${targetDate||moment(new Date(new Date().getTime()-(7*24*60*60*1000))).format('YYYY-MM-DD')}&end_at=${baseDate}&symbols=${baseCurrency},${targetCurrency}&base=${baseCurrency}`);
+        const res = await fetch(`https://api.exchangeratesapi.io/history?start_at=${targetDate||moment(new Date(new Date().getTime()-(7*24*60*60*1000))).format('YYYY-MM-DD')}&end_at=${baseDate}&symbols=${targetCurrency},${baseCurrency}&base=${baseCurrency}`);
         return res.json();
     }
 
@@ -45,7 +51,13 @@ const Visual =()=>{
         data&&Object.entries(data.rates).map(day=>{
       
             console.log(day[0])
-            plotData.push({x:new Date(day[0]),y:day[1][targetCurrency]})
+            if(day[1][targetCurrency]>=day[1][baseCurrency]){
+                plotData.push({x:new Date(day[0]),y:day[1][targetCurrency]})
+            }
+            else{
+                plotData.push({x:new Date(day[0]),y:1/day[1][targetCurrency]})
+            }
+         
     
         })
     }
@@ -59,10 +71,12 @@ const Visual =()=>{
     const handleBaseChange=(e)=>{
         
         setBaseCurrency(e.target.value)
-        console.log(e.target.value)
+        
     }
 
     const handleTargetChange=(e)=>{
+        
+       
         setTargetCurrency(e.target.value)
     }
 
@@ -107,12 +121,14 @@ const Visual =()=>{
                             {countries&&countries.map(country=>{
                                 return  <option value={country}>{country}</option>
                             })}
+                            
                         </select>
                     </div>
                     <br/>
                     <div className="container ">
                         <select class="browser-default   container " onChange={handleTargetChange}>
-                            <option value="" disabled selected  >Select Target Currency</option>
+                            <option value="" disabled >Select Target Currency</option>
+                            <option value="INR" selected  >INR</option>
                             {countries&&countries.map(country=>{
                                 return  <option value={country}>{country}</option>
                             })}
